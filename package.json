@@ -2,12 +2,19 @@
   "name": "goit-node-rest-api",
   "version": "1.0.0",
   "main": "app.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
-  "keywords": [],
   "author": "OLENA-DEYNEGA",
   "license": "ISC",
-  "type": "module",
-  "description": ""
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "joi": "^17.9.2",
+    "morgan": "^1.10.0",
+    "nanoid": "^5.0.2"
+  }
 }
+
+
