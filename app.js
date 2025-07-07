@@ -1,3 +1,9 @@
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 import "dotenv/config";
 import "./db/init.js";
 
@@ -9,8 +15,12 @@ import "./db/sequelize.js";
 
 import contactsRouter from "./routes/contactsRouter.js";
 import authRouter from "./routes/authRouter.js";
+import path from "path";
+
 
 const app = express();
+
+app.use("/avatars", express.static(path.join(__dirname, "public/avatars")));
 
 app.use(morgan("tiny"));
 app.use(cors());

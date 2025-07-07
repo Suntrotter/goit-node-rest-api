@@ -5,7 +5,13 @@ import {
   loginUser,
   logoutUser,
   changeSubscription,
+  changeAvatar,
 } from "../services/authServices.js";
+import { join, resolve } from "path";
+import { rename } from "fs/promises";
+import { v4 as uuidv4 } from "uuid";
+
+const avatarDir = resolve("public", "avatars");
 
 const registerController = async (req, res, next) => {
   try {
@@ -22,14 +28,15 @@ const registerController = async (req, res, next) => {
     throw err;
   }
 };
+
 const loginController = async (req, res, next) => {
   const { token, user } = await loginUser(req.body);
   res.json({ token, user });
 };
 
 const getCurrentController = async (req, res, next) => {
-  const { email, subscription } = req.user;
-  res.json({ email, subscription });
+  const { email, subscription, avatarURL  } = req.user;
+  res.json({ email, subscription, avatarURL  });
 };
 
 const logoutController = async (req, res, next) => {
@@ -52,10 +59,32 @@ const subscriptionController = async (req, res, next) => {
   });
 };
 
+const avatarsController = async (req, res, next) => {
+  console.log("req.file:", req.file);
+  const { id } = req.user;
+
+  if (!req.file) {
+    throw HttpError(400, "Avatar file is missing");
+  }
+
+  const { path: oldPath, originalname } = req.file;
+  const filename = `${uuidv4()}_${originalname}`;
+  const newPath = join(avatarDir, filename);
+  await rename(oldPath, newPath);
+
+  const avatarURL = join("avatars", filename);
+  const changedUser = await changeAvatar(id, avatarURL);
+
+  res.json({
+    avatarURL: changedUser.avatarURL,
+  });
+};
+
 export default {
   registerController: ctrlWrapper(registerController),
   loginController: ctrlWrapper(loginController),
   getCurrentController: ctrlWrapper(getCurrentController),
   logoutController: ctrlWrapper(logoutController),
   subscriptionController: ctrlWrapper(subscriptionController),
+  avatarsController: ctrlWrapper(avatarsController),
 };

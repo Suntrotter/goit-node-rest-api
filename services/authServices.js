@@ -2,6 +2,7 @@ import User from "../db/users.js";
 import bcrypt from "bcrypt";
 import HttpError from "../helpers/HttpError.js";
 import { createToken } from "../helpers/jwt.js";
+import gravatar from "gravatar";
 
 export const findUser = (query) =>
   User.findOne({
@@ -10,8 +11,13 @@ export const findUser = (query) =>
 
 export const registerUser = async (payload) => {
   const hashPassword = await bcrypt.hash(payload.password, 10);
+  const avatarURL = gravatar.url(payload.email, { s: "250" }, true);
 
-  return User.create({ ...payload, password: hashPassword });
+  return User.create({
+    ...payload,
+    password: hashPassword,
+    avatarURL, 
+  });
 };
 
 export const loginUser = async ({ email, password }) => {
@@ -39,6 +45,7 @@ export const loginUser = async ({ email, password }) => {
   };
 };
 
+// Логаут
 export const logoutUser = async ({ email }) => {
   const user = await findUser({ email });
   if (!user) throw HttpError(401, "Not authorized");
@@ -46,11 +53,23 @@ export const logoutUser = async ({ email }) => {
   await user.save();
 };
 
+// Зміна підписки
 export const changeSubscription = async (userId, subscription) => {
   const user = await findUser({ id: userId });
   if (!user) throw HttpError(404, "User not found");
 
   user.subscription = subscription;
+  await user.save();
+
+  return user;
+};
+
+
+export const changeAvatar = async (userId, avatarPath) => {
+  const user = await findUser({ id: userId });
+  if (!user) throw HttpError(404, "User not found");
+
+  user.avatarURL = avatarPath;
   await user.save();
 
   return user;
