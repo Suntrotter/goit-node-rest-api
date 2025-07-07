@@ -1,4 +1,7 @@
 import { Sequelize } from "sequelize";
+import dotenv from "dotenv";
+dotenv.config();
+
 const sequelize = new Sequelize({
   dialect: process.env.DATABASE_DIALECT,
   host: process.env.DATABASE_HOST,
@@ -7,7 +10,10 @@ const sequelize = new Sequelize({
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   dialectOptions: {
-    ssl: true,
+    ssl: {
+      require: true,
+      rejectUnauthorized: false // <-- ось це головне
+    }
   },
 });
 try {
