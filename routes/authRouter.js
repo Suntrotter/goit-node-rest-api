@@ -5,6 +5,7 @@ import { subscriptionSchema } from "../schemas/subscriptionSchema.js";
 import authController from "../controllers/authController.js";
 import authenticate from "../middleware/authenticate.js";
 import upload from "../middleware/upload.js";
+import { authVerifySchema } from "../schemas/authSchema.js";
 
 const authRouter = express.Router();
 
@@ -12,6 +13,14 @@ authRouter.post(
   "/register",
   validateBody(authSchema),
   authController.registerController
+);
+
+authRouter.get("/verify/:verificationToken", authController.verifyUserEmail);
+
+authRouter.post(
+  "/verify",
+  validateBody(authVerifySchema),
+  authController.resendVerificationEmail
 );
 
 authRouter.post(
